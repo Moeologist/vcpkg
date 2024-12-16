@@ -14,6 +14,15 @@ function(z_vcpkg_apply_patches)
 
     set(ENV{GIT_CONFIG_NOSYSTEM} 1)
     set(patchnum 0)
+
+    if(DEFINED PORT AND VCPKG_USE_CLANGCL AND EXISTS "${CURRENT_PORT_DIR}/z-fix-clangcl.patch")
+        list(APPEND arg_PATCHES "z-fix-clangcl.patch")
+    endif()
+
+    if(DEFINED PORT AND EXISTS "${CURRENT_PORT_DIR}/z-autofix.patch")
+        list(APPEND arg_PATCHES "z-autofix.patch")
+    endif()
+
     foreach(patch IN LISTS arg_PATCHES)
         get_filename_component(absolute_patch "${patch}" ABSOLUTE BASE_DIR "${CURRENT_PORT_DIR}")
         message(STATUS "Applying patch ${patch}")

@@ -1,0 +1,84 @@
+diff --git a/configure.ac b/configure.ac
+index dfc9d8a..2621a50 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -389,7 +389,7 @@ AC_SUBST(GL_CFLAGS)
+ AC_SUBST(GL_LIBS)
+ 
+ # Optimizations
+-CFLAGS="${CFLAGS} -g -O2 -fno-strength-reduce -fomit-frame-pointer"
++CFLAGS="${CFLAGS} -g -fno-strength-reduce -fomit-frame-pointer"
+ # Code qui fait des warnings == code de porc == deux baffes dans ta gueule
+ CFLAGS="${CFLAGS} -Wall -Wpointer-arith -Wcast-align -Wcast-qual -Wstrict-prototypes -Wshadow -Waggregate-return -Wmissing-prototypes -Wnested-externs -Wsign-compare"
+ CXXFLAGS="${CXXFLAGS} -Wall -Wpointer-arith -Wcast-align -Wcast-qual -Wshadow -Wsign-compare"
+diff --git a/configure.ac b/configure.ac
+index a1d7fa5..3e56a4c 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -391,8 +391,6 @@ AC_SUBST(GL_LIBS)
+ # Optimizations
+ CFLAGS="${CFLAGS} -g -fno-strength-reduce -fomit-frame-pointer"
+ # Code qui fait des warnings == code de porc == deux baffes dans ta gueule
+-CFLAGS="${CFLAGS} -Wall -Wpointer-arith -Wcast-align -Wcast-qual -Wstrict-prototypes -Wshadow -Waggregate-return -Wmissing-prototypes -Wnested-externs -Wsign-compare"
+-CXXFLAGS="${CXXFLAGS} -Wall -Wpointer-arith -Wcast-align -Wcast-qual -Wshadow -Wsign-compare"
+ 
+ dnl Visibility annotations...
+ saved_CFLAGS="$CFLAGS"
+diff --git a/src/cacaplay.c b/src/cacaplay.c
+index 2776cc8..237e6be 100644
+--- a/src/cacaplay.c
++++ b/src/cacaplay.c
+@@ -19,7 +19,7 @@
+ #   include <sys/stat.h>
+ #   include <fcntl.h>
+ #   include <string.h>
+-#   include <unistd.h>
++#   include <io.h>
+ #endif
+ 
+ #include "caca.h"
+diff --git a/src/cacaclock.c b/src/cacaclock.c
+index 3a405ea..cf7c4c9 100644
+--- a/src/cacaclock.c
++++ b/src/cacaclock.c
+@@ -169,7 +169,11 @@ int main(int argc, char *argv[]) {
+ 
+         caca_blit(cv, x, y, figcv, NULL);
+         caca_refresh_display(dp);
++#ifdef _MSC_VER
++        Sleep(250);
++#else
+         usleep(250000);
++#endif
+     }
+ end:
+ 
+diff --git a/caca/caca0.h b/caca/caca0.h
+index 97f155e..17256b7 100644
+--- a/caca/caca0.h
++++ b/caca/caca0.h
+@@ -147,7 +147,11 @@ enum caca_feature
+ #define caca_get_color_name __caca0_get_color_name
+ #define caca_putchar(x, y, c) caca_put_char(__caca0_cv, x, y, c)
+ #define caca_putstr(x, y, s) caca_put_str(__caca0_cv, x, y, s)
++#ifdef _MSC_VER
++#define caca_printf(x, y, f, ...) caca_printf(__caca0_cv, x, y, f, ##__VA_ARGS__)
++#else
+ #define caca_printf(x, y, f, z...) caca_printf(__caca0_cv, x, y, f, ##z)
++#endif
+ #define caca_clear() caca_clear_canvas(__caca0_cv)
+ 
+ #define caca_draw_line(x, y, z, t, c) \
+diff --git a/caca/caca0.h b/caca/caca0.h
+index 97f155e..3893e97 100644
+--- a/caca/caca0.h
++++ b/caca/caca0.h
+@@ -24,7 +24,7 @@
+ #if defined _DOXYGEN_SKIP_ME
+ #elif defined _WIN32 && defined __LIBCACA__ && defined DLL_EXPORT
+ #   define __extern extern __declspec(dllexport)
+-#elif defined _WIN32 && !defined __LIBCACA__
++#elif defined _WIN32 && !defined __LIBCACA__ && !defined CACA_STATIC
+ #   define __extern extern __declspec(dllimport)
+ #elif defined CACA_ENABLE_VISIBILITY
+ #   define __extern extern __attribute__((visibility("default")))

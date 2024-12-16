@@ -1,12 +1,11 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO clMathLibraries/clFFT
-    REF v2.12.2
-    SHA512 19e9a4e06f76ae7c7808d1188677d5553c43598886a75328b7801ab2ca68e35206839a58fe2f958a44a6f7c83284dc9461cd0e21c37d1042bf82e24aad066be8
+    REF c59712e136fa6207956af22f5c0e4cee7d05340e
+    SHA512 db7ae2dfed12312ef5ce4c42b63a30bf2421c7726afa6d18f87f7db3bdf56b2f4ecb81331f26e4474416c87159344d2ba247d7fb1325c65ad9853d5dbc1395c0
     HEAD_REF master
     PATCHES
         tweak-install.patch
-        fix-build.patch
 )
 
 vcpkg_cmake_configure(

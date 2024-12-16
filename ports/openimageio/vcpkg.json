@@ -6,6 +6,7 @@
   "license": "BSD-3-Clause",
   "dependencies": [
     "fmt",
+    "libheif",
     "libjpeg-turbo",
     "libpng",
     "opencolorio",

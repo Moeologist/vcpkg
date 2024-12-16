@@ -1,0 +1,11 @@
+{
+  "name": "libbluray",
+  "version": "1.3.4-1",
+  "homepage": "libbluray is an open-source library designed for Blu-Ray Discs playback for media players.",
+  "description": "https://www.videolan.org/developers/libbluray.html",
+  "default-features": [],
+  "dependencies": [
+    "zlib",
+    "libxml2"
+  ]
+}

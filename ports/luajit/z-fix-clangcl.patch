@@ -1,0 +1,47 @@
+diff --git a/src/lj_def.h b/src/lj_def.h
+index b61297a..1177781 100644
+--- a/src/lj_def.h
++++ b/src/lj_def.h
+@@ -256,15 +256,15 @@ static LJ_AINLINE uint32_t lj_getu32(const void *p)
+ #endif
+ 
+ #ifdef _M_PPC
+-unsigned int _CountLeadingZeros(long);
++extern unsigned int _CountLeadingZeros(long);
+ #pragma intrinsic(_CountLeadingZeros)
+ static LJ_AINLINE uint32_t lj_fls(uint32_t x)
+ {
+   return _CountLeadingZeros(x) ^ 31;
+ }
+ #else
+-unsigned char _BitScanForward(unsigned long *, unsigned long);
+-unsigned char _BitScanReverse(unsigned long *, unsigned long);
++extern unsigned char _BitScanForward(unsigned long *, unsigned long);
++extern unsigned char _BitScanReverse(unsigned long *, unsigned long);
+ #pragma intrinsic(_BitScanForward)
+ #pragma intrinsic(_BitScanReverse)
+ 
+@@ -279,8 +279,8 @@ static LJ_AINLINE uint32_t lj_fls(uint32_t x)
+ }
+ #endif
+ 
+-unsigned long _byteswap_ulong(unsigned long);
+-uint64_t _byteswap_uint64(uint64_t);
++extern unsigned long _byteswap_ulong(unsigned long);
++extern uint64_t _byteswap_uint64(uint64_t);
+ #define lj_bswap(x)	(_byteswap_ulong((x)))
+ #define lj_bswap64(x)	(_byteswap_uint64((x)))
+ 
+diff --git a/src/msvcbuild.bat b/src/msvcbuild.bat
+index 6e61150..4162970 100644
+--- a/src/msvcbuild.bat
++++ b/src/msvcbuild.bat
+@@ -16,7 +16,7 @@
+ @rem Add more debug flags here, e.g. DEBUGCFLAGS=/DLUA_USE_APICHECK
+ @set DEBUGCFLAGS=
+ @set SOURCEDIR=%1
+-@set LJCOMPILE=cl /nologo /c /O2 /W3 /D_CRT_SECURE_NO_DEPRECATE /D_CRT_STDIO_INLINE=__declspec(dllexport)__inline /I%SOURCEDIR%
++@set LJCOMPILE=clang-cl /nologo /c /O2 /W3 /D_CRT_SECURE_NO_DEPRECATE /D_CRT_STDIO_INLINE=__declspec(dllexport)__inline /I%SOURCEDIR%
+ @set LJLINK=link /nologo
+ @set LJMT=mt /nologo
+ @set LJLIB=lib /nologo /nodefaultlib

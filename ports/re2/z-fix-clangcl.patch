@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5c980f0..f3a95fb 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -22,7 +22,7 @@ option(RE2_BUILD_TESTING "enable testing for RE2" ON)
+ 
+ set(EXTRA_TARGET_LINK_LIBRARIES)
+ 
+-if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
++if(MSVC)
+   if(MSVC_VERSION LESS 1900)
+     message(FATAL_ERROR "you need Visual Studio 2015 or later")
+   endif()

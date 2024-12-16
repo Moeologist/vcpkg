@@ -19,6 +19,7 @@ set(FL_DEFAULT_VCPKG_CMAKE_FLAGS
   -DFL_BUILD_EXAMPLES=OFF
   -DFL_BACKEND=CUDA # this port is CUDA-backend only
   -DFL_BUILD_STANDALONE=OFF
+  -DFL_BUILD_DISTRIBUTED=OFF
 )
 
 # Determine which components to build via specified feature

@@ -1,0 +1,62 @@
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index d81188c..729ccdf 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -111,8 +111,8 @@ if(BUILD_SHARED_LIBS)
+   set_property(TARGET mysofa-shared PROPERTY SOVERSION
+                                              ${CPACK_PACKAGE_VERSION_MAJOR})
+   set_property(TARGET mysofa-shared PROPERTY C_VISIBILITY_PRESET hidden)
+-  generate_export_header(mysofa-shared BASE_NAME mysofa EXPORT_FILE_NAME
+-                         ${PROJECT_SOURCE_DIR}/src/hrtf/mysofa_export.h)
++  configure_file(${PROJECT_SOURCE_DIR}/src/hrtf/mysofa_export.h.in ${PROJECT_SOURCE_DIR}/src/hrtf/mysofa_export.h)
++  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+ 
+   if(UNIX
+      AND CODE_COVERAGE
+@@ -132,8 +132,7 @@ if(BUILD_SHARED_LIBS)
+     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ else()
+-  generate_export_header(mysofa-static BASE_NAME mysofa EXPORT_FILE_NAME
+-                         ${PROJECT_SOURCE_DIR}/src/hrtf/mysofa_export.h)
++  configure_file(${PROJECT_SOURCE_DIR}/src/hrtf/mysofa_export.h.in ${PROJECT_SOURCE_DIR}/src/hrtf/mysofa_export.h)
+ endif()
+ 
+ install(FILES hrtf/mysofa.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+diff --git a/src/hdf/dataobject.c b/src/hdf/dataobject.c
+index 8d7de4d..4bddfc0 100644
+--- a/src/hdf/dataobject.c
++++ b/src/hdf/dataobject.c
+@@ -653,8 +653,8 @@ static int readOHDRHeaderMessageFilterPipelineV1(struct READER *reader,
+           -1)                     // skip name
+         return MYSOFA_READ_ERROR; // LCOV_EXCL_LINE
+ 
+-    mylog("  filter %d namelen %d flags %04X values %d\n",
+-          filter_identification_value, namelength, flags,
++    mylog("  filter %d namelen %d values %d\n",
++          filter_identification_value, namelength,
+           number_client_data_values);
+ 
+     if (number_client_data_values > 0x1000)
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index d7f01ce..11dbbca 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -12,7 +12,7 @@ use_c99()
+ 
+ configure_file(config.h.in ${PROJECT_SOURCE_DIR}/src/config.h)
+ 
+-if(NOT MSVC)
++if(TRUE)
+   if(NOT WIN32)
+     find_library(MATH m)
+   else()
+@@ -29,7 +29,7 @@ else()
+     ${PROJECT_SOURCE_DIR}/windows/third-party/zlib-1.2.11/include/)
+ endif()
+ 
+-if(NOT MSVC)
++if(TRUE)
+   if(NOT WIN32)
+     find_library(MATH m)
+   else()

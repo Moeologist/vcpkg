@@ -21,7 +21,11 @@ function(find_qt_mkspec TARGET_PLATFORM_MKSPEC_OUT HOST_PLATFORM_MKSPEC_OUT EXT_
                     message(STATUS "Figuring out arm64") 
                     set(_tmp_targ_out "win32-arm64-msvc2017") #mkspec does not have anything defined related to msvc2017 so this should work
                 else()
-                    set(_tmp_targ_out "win32-msvc")
+                    if(VCPKG_USE_CLANGCL)
+                        set(_tmp_targ_out "win32-clang-msvc")
+                    else()
+                        set(_tmp_targ_out "win32-msvc")
+                    endif()
                 endif()
             endif()
         elseif(VCPKG_TARGET_IS_LINUX)

@@ -1,0 +1,13 @@
+{
+  "name": "libplacebo",
+  "version": "6.292.0",
+  "homepage": "https://code.videolan.org/videolan/libplacebo",
+  "description": "libplacebo is, in a nutshell, the core rendering algorithms and ideas of mpv rewritten as an independent library.",
+  "dependencies": [
+    "lcms2",
+    "libdovi",
+    "shaderc",
+    "spirv-cross",
+    "vulkan-headers"
+  ]
+}

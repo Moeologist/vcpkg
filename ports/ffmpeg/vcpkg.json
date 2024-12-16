@@ -258,6 +258,72 @@
         }
       ]
     },
+    "rubberband": {
+      "description": "Enable rubberband support",
+      "dependencies": [
+        "rubberband"
+      ]
+    },
+    "openal": {
+      "description": "Enable openal support",
+      "dependencies": [
+        "openal-soft"
+      ]
+    },
+    "libgme": {
+      "description": "Enable libgme support",
+      "dependencies": [
+        "libgme"
+      ]
+    },
+    "svt-av1": {
+      "description": "Enable svt-av1 support",
+      "dependencies": [
+        "svt-av1"
+      ]
+    },
+    "svt-hevc": {
+      "description": "Enable svt-hevc support",
+      "dependencies": [
+        "svt-hevc"
+      ]
+    },
+    "libbluray": {
+      "description": "Enable libbluray support",
+      "dependencies": [
+        "libbluray"
+      ]
+    },
+    "libcaca": {
+      "description": "Enable libcaca support",
+      "dependencies": [
+        "libcaca"
+      ]
+    },
+    "vidstab": {
+      "description": "Enable vid.stab support",
+      "dependencies": [
+        "vidstab"
+      ]
+    },
+    "zimg": {
+      "description": "Enable zimg support",
+      "dependencies": [
+        "zimg"
+      ]
+    },
+    "shaderc": {
+      "description": "Enable shaderc support",
+      "dependencies": [
+        "shaderc"
+      ]
+    },
+    "vulkan": {
+      "description": "Enable vulkan support",
+      "dependencies": [
+        "vulkan-headers"
+      ]
+    },
     "alsa": {
       "description": "Enable ALSA support",
       "dependencies": [

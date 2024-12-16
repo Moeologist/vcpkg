@@ -52,8 +52,6 @@
         "cereal",
         "cuda",
         "cudnn",
-        "nccl",
-        "openmpi",
         "stb"
       ]
     },

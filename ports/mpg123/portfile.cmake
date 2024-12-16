@@ -37,6 +37,15 @@ vcpkg_copy_pdbs()
 vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/${PORT})
 vcpkg_fixup_pkgconfig()
 
+if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
+    file(GLOB_RECURSE _pkg_components "${CURRENT_PACKAGES_DIR}/*.pc")
+    foreach(_pkg_comp ${_pkg_components})
+        file(READ ${_pkg_comp} _content)
+        string(REPLACE "-lmpg123" "-lmpg123 -lshlwapi" _content ${_content})
+        file(WRITE ${_pkg_comp} ${_content})
+    endforeach()
+endif()
+
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/share")
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
 

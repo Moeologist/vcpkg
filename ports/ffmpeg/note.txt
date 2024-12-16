@@ -1,0 +1,20 @@
+    // libbluray
+    // libcaca
+    // libplacebo
+    // vid.stab
+    // zimg
+    // libmysofa
+    // svt-hevc
+    // onevpl
+    "shaderc": {
+      "description": "Enable shaderc support",
+      "dependencies": [
+        "shaderc"
+      ]
+    },
+    "vulkan": {
+      "description": "Enable vulkan support",
+      "dependencies": [
+        "vulkan"
+      ]
+    },

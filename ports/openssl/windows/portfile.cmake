@@ -10,6 +10,10 @@ vcpkg_add_to_path("${PERL_EXE_PATH}")
 vcpkg_cmake_get_vars(cmake_vars_file)
 include("${cmake_vars_file}")
 
+if(VCPKG_USE_CLANGCL)
+    set(ENV{CC} "clang-cl")
+endif()
+
 if(VCPKG_TARGET_ARCHITECTURE STREQUAL "x86")
     set(OPENSSL_ARCH VC-WIN32)
 elseif(VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")

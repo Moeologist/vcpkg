@@ -28,7 +28,9 @@
     "cpu": {
       "description": "ArrayFire CPU backend",
       "dependencies": [
-        "intel-mkl"
+        "openblas",
+        "lapack-reference",
+        "fftw3"
       ]
     },
     "cuda": {
@@ -44,13 +46,13 @@
       "dependencies": [
         "clblast",
         "clfft",
+        "clblast",
         "opencl"
       ]
     },
     "unified": {
       "description": "ArrayFire unified backend",
       "dependencies": [
-        "intel-mkl"
       ]
     }
   }

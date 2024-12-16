@@ -1,0 +1,22 @@
+diff --git a/configure.ac b/configure.ac
+index c701634..9e0c6ba 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -140,7 +140,7 @@ AC_ARG_WITH([external-libudfread],
+ 
+ dnl required programs
+ AC_PROG_CC
+-AM_PROG_CC_C_O
++# AM_PROG_CC_C_O
+ m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
+ LT_INIT
+ 
+@@ -156,7 +156,7 @@ dnl required system services
+ AC_SYS_LARGEFILE
+ 
+ dnl required functions
+-AC_CHECK_FUNC([snprintf],, [AC_MSG_ERROR($function_not_found)])
++# AC_CHECK_FUNC([snprintf],, [AC_MSG_ERROR($function_not_found)])
+ 
+ dnl required libraries
+ dnl pthreads (not on win32)

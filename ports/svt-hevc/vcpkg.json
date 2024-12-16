@@ -1,0 +1,17 @@
+{
+  "name": "svt-hevc",
+  "version": "1.5.1",
+  "description": "Scalable Video Technology for HEVC Encoder (SVT-HEVC Encoder)",
+  "homepage": "https://github.com/OpenVisualCloud/SVT-HEVC",
+  "license": "BSD-2-Clause-Patent",
+  "dependencies": [
+    {
+      "name": "vcpkg-cmake",
+      "host": true
+    },
+    {
+      "name": "vcpkg-cmake-config",
+      "host": true
+    }
+  ]
+}

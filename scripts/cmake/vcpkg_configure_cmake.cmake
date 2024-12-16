@@ -164,12 +164,28 @@ function(vcpkg_configure_cmake)
         endif()
     endif()
 
+    if(generator MATCHES "Visual Studio" AND VCPKG_USE_CLANGCL)
+        set(generator "Ninja")
+        # list(APPEND arg_OPTIONS "-TClangCL")
+    endif()
+
     # If we use Ninja, make sure it's on PATH
     if("${generator}" STREQUAL "Ninja" AND NOT DEFINED ENV{VCPKG_FORCE_SYSTEM_BINARIES})
         vcpkg_find_acquire_program(NINJA)
         get_filename_component(ninja_path "${NINJA}" DIRECTORY)
         vcpkg_add_to_path("${ninja_path}")
         vcpkg_list(APPEND arg_OPTIONS "-DCMAKE_MAKE_PROGRAM=${NINJA}")
+        if(VCPKG_USE_CLANGCL)
+        find_program(_LIB_FIXED lib.exe)
+        vcpkg_list(APPEND arg_OPTIONS 
+        "-DCMAKE_C_COMPILER=C:/Dev/LLVM/bin/clang-cl.exe"
+        "-DCMAKE_CXX_COMPILER=C:/Dev/LLVM/bin/clang-cl.exe"
+        "-DCMAKE_RC_COMPILER=rc.exe"
+        "-DCMAKE_MT=mt.exe"
+        # "-DCMAKE_AR=${_LIB_FIXED}"
+        # "-DCMAKE_LINKER=link.exe"
+        )
+        endif()
     endif()
 
     file(REMOVE_RECURSE

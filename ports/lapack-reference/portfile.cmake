@@ -63,6 +63,7 @@ vcpkg_cmake_configure(
         "-DCMAKE_REQUIRE_FIND_PACKAGE_BLAS=${USE_OPTIMIZED_BLAS}"
         "-DCBLAS=${CBLAS}"
         "-DTEST_FORTRAN_COMPILER=OFF"
+        "-DLAPACKE=ON"
         ${FORTRAN_CMAKE}
     MAYBE_UNUSED_VARIABLES
         CMAKE_REQUIRE_FIND_PACKAGE_BLAS
@@ -106,6 +107,18 @@ if("cblas" IN_LIST FEATURES)
         file(READ "${pcfile}" _contents)
         file(WRITE "${pcfile}" "prefix=${CURRENT_INSTALLED_DIR}/debug\n${_contents}")
     endif()
+endif()
+set(pcfile "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/lapacke.pc")
+if(EXISTS "${pcfile}")
+    file(READ "${pcfile}" _contents)
+    set(_contents "prefix=${CURRENT_INSTALLED_DIR}\n${_contents}")
+    file(WRITE "${pcfile}" "${_contents}")
+endif()
+set(pcfile "${CURRENT_PACKAGES_DIR}/debug/lib/pkgconfig/lapacke.pc")
+if(EXISTS "${pcfile}")
+    file(READ "${pcfile}" _contents)
+    set(_contents "prefix=${CURRENT_INSTALLED_DIR}/debug\n${_contents}")
+    file(WRITE "${pcfile}" "${_contents}")
 endif()
 vcpkg_fixup_pkgconfig()
 

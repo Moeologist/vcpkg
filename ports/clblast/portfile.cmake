@@ -15,6 +15,7 @@ vcpkg_cmake_configure(
 vcpkg_cmake_install()
 
 vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/CLBlast)
+
 vcpkg_copy_pdbs()
 vcpkg_fixup_pkgconfig()
 

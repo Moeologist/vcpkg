@@ -1,0 +1,147 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 834d914..f2f3911 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -24,7 +24,9 @@ option(USE_OMP "use parallelization use OMP" ON)
+ 
+ set(CMAKE_C_STANDARD 99)
+ 
++if (NOT ${CMAKE_C_COMPILER_ID} STREQUAL MSVC)
+ add_definitions(-Wall -Wno-pointer-sign)
++endif()
+ 
+ if(NOT WIN32)
+   add_definitions(-fPIC)
+diff --git a/src/vidstabdefines.h b/src/vidstabdefines.h
+index 4e8f23a..16c06b7 100644
+--- a/src/vidstabdefines.h
++++ b/src/vidstabdefines.h
+@@ -85,13 +85,13 @@ extern int VS_ERROR;
+ extern int VS_OK;
+ 
+ 
+-#define vs_log_error(tag, format, args...) \
+-    vs_log(VS_ERROR_TYPE, tag, format , ## args)
+-#define vs_log_warn(tag, format, args...) \
+-    vs_log(VS_WARN_TYPE, tag, format , ## args)
+-#define vs_log_info(tag, format, args...) \
+-    vs_log(VS_INFO_TYPE, tag, format , ## args)
+-#define vs_log_msg(tag, format, args...) \
+-    vs_log(VS_MSG_TYPE, tag, format , ## args)
++#define vs_log_error(tag, format, ...) \
++    vs_log(VS_ERROR_TYPE, tag, format , ## __VA_ARGS__)
++#define vs_log_warn(tag, format, ...) \
++    vs_log(VS_WARN_TYPE, tag, format , ## __VA_ARGS__)
++#define vs_log_info(tag, format, ...) \
++    vs_log(VS_INFO_TYPE, tag, format , ## __VA_ARGS__)
++#define vs_log_msg(tag, format, ...) \
++    vs_log(VS_MSG_TYPE, tag, format , ## __VA_ARGS__)
+ 
+ #endif /* VIDSTABDEFINES_H_ */
+diff --git a/src/transform.h b/src/transform.h
+index 62e8ff4..21d7e42 100644
+--- a/src/transform.h
++++ b/src/transform.h
+@@ -25,7 +25,6 @@
+ #define __TRANSFORM_H
+ 
+ #include <math.h>
+-#include <libgen.h>
+ #include <stdint.h>
+ #include "transformtype.h"
+ #include "frameinfo.h"
+diff --git a/src/serialize.c b/src/serialize.c
+index 2b0a1b2..c202d0e 100644
+--- a/src/serialize.c
++++ b/src/serialize.c
+@@ -65,7 +65,9 @@ static double byteSwapDouble(double v)
+     defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__)
+ // It's a little-endian target architecture
+ #define __IS_LITTLE_ENDIAN__
+-#else
++#elif defined(_MSC_VER) && defined(_WIN32)
++#define __IS_LITTLE_ENDIAN__
++#else
+ #error "I don't know what architecture this is!"
+ #endif
+ 
+diff --git a/src/transform.c b/src/transform.c
+index 380ad28..282185e 100644
+--- a/src/transform.c
++++ b/src/transform.c
+@@ -32,7 +32,6 @@
+ #endif
+ 
+ #include <math.h>
+-#include <libgen.h>
+ #include <string.h>
+ 
+ const char* interpol_type_names[5] = {"No (0)", "Linear (1)", "Bi-Linear (2)",
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f2f3911..e451c4f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -70,8 +70,10 @@ add_library (vidstab ${SOURCES})
+ set_target_properties(vidstab PROPERTIES SOVERSION ${MAJOR_VERSION}.${MINOR_VERSION})
+ 
+ 
++if (NOT ${CMAKE_C_COMPILER_ID} STREQUAL MSVC)
+ target_link_libraries(vidstab m)
+ set(PKG_EXTRA_LIBS -lm)
++endif()
+ if(ORC_FOUND)
+ target_link_libraries(vidstab ${ORC_LIBRARIES})
+ set(PKG_EXTRA_LIBS "${PKG_EXTRA_LIBS} ${ORC_LIBRARIES}")
+diff --git a/src/transformfixedpoint.c b/src/transformfixedpoint.c
+index 3549747..881a1a8 100644
+--- a/src/transformfixedpoint.c
++++ b/src/transformfixedpoint.c
+@@ -119,7 +119,7 @@ inline static short bicub_kernel(fp16 t, short a0, short a1, short a2, short a3)
+ }
+ 
+ /** interpolateBiCub: bi-cubic interpolation function using 4x4 pixel, see interpolate */
+-inline void interpolateBiCub(uint8_t *rv, fp16 x, fp16 y,
++void interpolateBiCub(uint8_t *rv, fp16 x, fp16 y,
+                              const uint8_t *img, int img_linesize,
+                              int width, int height, uint8_t def)
+ {
+@@ -159,7 +159,7 @@ inline void interpolateBiCub(uint8_t *rv, fp16 x, fp16 y,
+ 
+ 
+ /** interpolateBiLin: bi-linear interpolation function, see interpolate */
+-inline void interpolateBiLin(uint8_t *rv, fp16 x, fp16 y,
++void interpolateBiLin(uint8_t *rv, fp16 x, fp16 y,
+                              const uint8_t *img, int img_linesize,
+                              int32_t width, int32_t height, uint8_t def)
+ {
+@@ -187,7 +187,7 @@ inline void interpolateBiLin(uint8_t *rv, fp16 x, fp16 y,
+ }
+ 
+ /** interpolateLin: linear (only x) interpolation function, see interpolate */
+-inline void interpolateLin(uint8_t *rv, fp16 x, fp16 y,
++void interpolateLin(uint8_t *rv, fp16 x, fp16 y,
+                            const uint8_t *img, int img_linesize,
+                            int width, int height, uint8_t def)
+ {
+@@ -205,7 +205,7 @@ inline void interpolateLin(uint8_t *rv, fp16 x, fp16 y,
+ }
+ 
+ /** interpolateZero: nearest neighbor interpolation function, see interpolate */
+-inline void interpolateZero(uint8_t *rv, fp16 x, fp16 y,
++void interpolateZero(uint8_t *rv, fp16 x, fp16 y,
+                             const uint8_t *img, int img_linesize,
+                             int width, int height, uint8_t def)
+ {
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e451c4f..148908e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -66,8 +66,6 @@ set(HEADERS src/frameinfo.h src/transformtype.h src/libvidstab.h
+ # Create the vidstab library
+ add_library (vidstab ${SOURCES})
+ 
+-#set version of lib
+-set_target_properties(vidstab PROPERTIES SOVERSION ${MAJOR_VERSION}.${MINOR_VERSION})
+ 
+ 
+ if (NOT ${CMAKE_C_COMPILER_ID} STREQUAL MSVC)

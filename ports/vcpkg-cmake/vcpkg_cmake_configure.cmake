@@ -112,6 +112,11 @@ function(vcpkg_cmake_configure)
     set(parallel_log_args "")
     set(log_args "")
 
+    if(generator MATCHES "Visual Studio" AND VCPKG_USE_CLANGCL)
+        set(generator "Ninja")
+        # list(APPEND arg_OPTIONS "-TClangCL")
+    endif()
+
     if(generator STREQUAL "Ninja")
         vcpkg_find_acquire_program(NINJA)
         vcpkg_list(APPEND arg_OPTIONS "-DCMAKE_MAKE_PROGRAM=${NINJA}")
@@ -124,6 +129,17 @@ function(vcpkg_cmake_configure)
             "../../${TARGET_TRIPLET}-dbg/build.ninja" ALIAS "dbg-ninja.log"
         )
         set(log_args "build.ninja")
+        if(VCPKG_USE_CLANGCL)
+        find_program(_LIB_FIXED lib.exe)
+        vcpkg_list(APPEND arg_OPTIONS 
+        "-DCMAKE_C_COMPILER=C:/Dev/LLVM/bin/clang-cl.exe"
+        "-DCMAKE_CXX_COMPILER=C:/Dev/LLVM/bin/clang-cl.exe"
+        "-DCMAKE_RC_COMPILER=rc.exe"
+        "-DCMAKE_MT=mt.exe"
+        # "-DCMAKE_AR=${_LIB_FIXED}"
+        # "-DCMAKE_LINKER=link.exe"
+        )
+        endif()
     endif()
 
     set(build_dir_release "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel")

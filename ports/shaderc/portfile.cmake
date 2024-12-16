@@ -37,6 +37,28 @@ vcpkg_cmake_configure(
 
 vcpkg_cmake_install()
 
+if (VCPKG_LIBRARY_LINKAGE STREQUAL "static")
+file(RENAME "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/shaderc_static.pc" "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/shaderc.pc")
+file(RENAME "${CURRENT_PACKAGES_DIR}/debug/lib/pkgconfig/shaderc_static.pc" "${CURRENT_PACKAGES_DIR}/debug/lib/pkgconfig/shaderc.pc")
+endif()
+
+file(GLOB _pkg_components "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/*.pc")
+foreach(_pkg_comp ${_pkg_components})
+  file(READ ${_pkg_comp} _content)
+  string(REPLACE "-lshaderc_shared" "-lshaderc -lshaderc_util" _content ${_content})
+  string(APPEND _content "\nRequires.private:  SPIRV-Tools")
+  string(APPEND _content "\nLibs.private: -lMachineIndependent -lGenericCodeGen -lglslang -lOSDependent -lglslang -lHLSL -lSPIRV -lSPIRV-Tools-opt -lSPIRV-Tools")
+  file(WRITE ${_pkg_comp} ${_content})
+endforeach()
+file(GLOB _pkg_components "${CURRENT_PACKAGES_DIR}/debug/lib/pkgconfig/*.pc")
+foreach(_pkg_comp ${_pkg_components})
+  file(READ ${_pkg_comp} _content)
+  string(REPLACE "-lshaderc_shared" "-lshaderc -lshaderc_util" _content ${_content})
+  string(APPEND _content "\nRequires.private:  SPIRV-Tools")
+  string(APPEND _content "\nLibs.private: -lMachineIndependentd -lGenericCodeGend -lglslangd -lOSDependentd -lglslangd -lHLSLd -lSPIRVd -lSPIRV-Tools-opt -lSPIRV-Tools")
+  file(WRITE ${_pkg_comp} ${_content})
+endforeach()
+
 vcpkg_fixup_pkgconfig()
 vcpkg_cmake_config_fixup(PACKAGE_NAME unofficial-shaderc CONFIG_PATH share/unofficial-shaderc)
 

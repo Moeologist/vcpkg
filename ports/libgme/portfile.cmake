@@ -58,6 +58,16 @@ vcpkg_fixup_pkgconfig()
 
 vcpkg_copy_pdbs()
 
+if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
+    file(GLOB_RECURSE _pkg_components "${CURRENT_PACKAGES_DIR}/*.pc")
+    foreach(_pkg_comp ${_pkg_components})
+        file(READ ${_pkg_comp} _content)
+        string(REPLACE " -lz" "" _content ${_content})
+        string(APPEND _content "\nRequires: zlib\n")
+        file(WRITE ${_pkg_comp} ${_content})
+    endforeach()
+endif()
+
 file(REMOVE_RECURSE 
     "${CURRENT_PACKAGES_DIR}/debug/include"
 )

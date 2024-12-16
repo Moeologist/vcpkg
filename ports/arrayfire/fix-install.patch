@@ -1,0 +1,35 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a8cbec8..76efa18 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -269,6 +269,8 @@ install(DIRECTORY "${ArrayFire_SOURCE_DIR}/LICENSES/"
+     DESTINATION LICENSES
+     COMPONENT licenses)
+ 
++set(AF_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_DATADIR}/arrayfire")
++
+ foreach(backend CPU CUDA OpenCL Unified)
+   string(TOUPPER ${backend} upper_backend)
+   string(TOLOWER ${backend} lower_backend)
+diff --git a/CMakeModules/FindLAPACKE.cmake b/CMakeModules/FindLAPACKE.cmake
+index 84e20fe..b838ae4 100644
+--- a/CMakeModules/FindLAPACKE.cmake
++++ b/CMakeModules/FindLAPACKE.cmake
+@@ -34,7 +34,7 @@ IF(PKG_CONFIG_FOUND AND NOT LAPACKE_ROOT_DIR)
+   PKG_CHECK_MODULES( PC_LAPACKE QUIET "lapacke")
+ ENDIF()
+ 
+-IF(PC_LAPACKE_FOUND)
++IF(OFF)
+     FOREACH(PC_LIB ${PC_LAPACKE_LIBRARIES})
+       FIND_LIBRARY(${PC_LIB}_LIBRARY NAMES ${PC_LIB} HINTS ${PC_LAPACKE_LIBRARY_DIRS} )
+       IF (NOT ${PC_LIB}_LIBRARY)
+@@ -140,7 +140,7 @@ ELSE(PC_LAPACKE_FOUND)
+             lapacke
+             )
+     ENDIF(LAPACKE_ROOT_DIR)
+-ENDIF(PC_LAPACKE_FOUND)
++ENDIF()
+ 
+ IF(PC_LAPACKE_FOUND OR (LAPACKE_LIB AND LAPACK_LIB))
+     SET(LAPACK_LIBRARIES ${LAPACKE_LIB} ${LAPACK_LIB})

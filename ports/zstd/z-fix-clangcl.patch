@@ -1,0 +1,13 @@
+diff --git a/build/cmake/CMakeModules/AddZstdCompilationFlags.cmake b/build/cmake/CMakeModules/AddZstdCompilationFlags.cmake
+index 0265349..95f31ce 100644
+--- a/build/cmake/CMakeModules/AddZstdCompilationFlags.cmake
++++ b/build/cmake/CMakeModules/AddZstdCompilationFlags.cmake
+@@ -29,7 +29,7 @@ function(EnableCompilerFlag _flag _C _CXX _LD)
+ endfunction()
+ 
+ macro(ADD_ZSTD_COMPILATION_FLAGS)
+-    if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" OR MINGW) #Not only UNIX but also WIN32 for MinGW
++    if (NOT MSVC AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" OR MINGW) #Not only UNIX but also WIN32 for MinGW
+         # It's possible to select the exact standard used for compilation.
+         # It's not necessary, but can be employed for specific purposes.
+         # Note that zstd source code is compatible with both C++98 and above

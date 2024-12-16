@@ -17,6 +17,8 @@ vcpkg_from_github(
         0040-ffmpeg-add-av_stream_get_first_dts-for-chromium.patch # Do not remove this patch. It is required by chromium
         0041-add-const-for-opengl-definition.patch
         0043-fix-miss-head.patch
+        master-0001-lavc-svt_hevc-add-libsvt-hevc-encoder-wrapper.patch
+        0002-doc-Add-libsvt_hevc-encoder-docs.patch
 )
 
 if(SOURCE_PATH MATCHES " ")
@@ -264,6 +266,78 @@ if("swscale" IN_LIST FEATURES)
 else()
     set(OPTIONS "${OPTIONS} --disable-swscale")
     set(ENABLE_SWSCALE OFF)
+endif()
+
+if ("rubberband" IN_LIST FEATURES)
+    set(OPTIONS "${OPTIONS} --enable-librubberband")
+else()
+    set(OPTIONS "${OPTIONS} --disable-librubberband")
+endif()
+
+if ("openal" IN_LIST FEATURES)
+    set(OPTIONS "${OPTIONS} --enable-openal")
+else()
+    set(OPTIONS "${OPTIONS} --disable-openal")
+endif()
+
+if ("libgme" IN_LIST FEATURES)
+    set(OPTIONS "${OPTIONS} --enable-libgme")
+else()
+    set(OPTIONS "${OPTIONS} --disable-libgme")
+endif()
+
+if ("svt-av1" IN_LIST FEATURES)
+    set(OPTIONS "${OPTIONS} --enable-libsvtav1")
+else()
+    set(OPTIONS "${OPTIONS} --disable-libsvtav1")
+endif()
+
+if ("svt-hevc" IN_LIST FEATURES)
+    set(OPTIONS "${OPTIONS} --enable-libsvthevc")
+else()
+    set(OPTIONS "${OPTIONS} --disable-libsvthevc")
+endif()
+
+if ("libbluray" IN_LIST FEATURES)
+    set(OPTIONS "${OPTIONS} --enable-libbluray")
+else()
+    set(OPTIONS "${OPTIONS} --disable-libbluray")
+endif()
+
+if ("libcaca" IN_LIST FEATURES)
+    set(OPTIONS "${OPTIONS} --enable-libcaca")
+else()
+    set(OPTIONS "${OPTIONS} --disable-libcaca")
+endif()
+
+if ("vidstab" IN_LIST FEATURES)
+    set(OPTIONS "${OPTIONS} --enable-libvidstab")
+else()
+    set(OPTIONS "${OPTIONS} --disable-libvidstab")
+endif()
+
+if ("zimg" IN_LIST FEATURES)
+    set(OPTIONS "${OPTIONS} --enable-libzimg")
+else()
+    set(OPTIONS "${OPTIONS} --disable-libzimg")
+endif()
+
+if ("libmysofa" IN_LIST FEATURES)
+    set(OPTIONS "${OPTIONS} --enable-libmysofa")
+else()
+    set(OPTIONS "${OPTIONS} --disable-libmysofa")
+endif()
+
+if ("shaderc" IN_LIST FEATURES)
+    set(OPTIONS "${OPTIONS} --enable-libshaderc")
+else()
+    set(OPTIONS "${OPTIONS} --disable-libshaderc")
+endif()
+
+if ("vulkan" IN_LIST FEATURES)
+    set(OPTIONS "${OPTIONS} --enable-vulkan")
+else()
+    set(OPTIONS "${OPTIONS} --disable-vulkan")
 endif()
 
 if ("alsa" IN_LIST FEATURES)

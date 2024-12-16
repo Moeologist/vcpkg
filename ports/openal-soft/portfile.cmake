@@ -100,6 +100,15 @@ endforeach()
 
 vcpkg_fixup_pkgconfig()
 
+if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
+    file(GLOB_RECURSE _pkg_components "${CURRENT_PACKAGES_DIR}/*.pc")
+    foreach(_pkg_comp ${_pkg_components})
+        file(READ ${_pkg_comp} _content)
+        string(REPLACE "-lOpenAL32" "-lOpenAL32 -lshell32 -lshlwapi -lcfgmgr32 -lole32 -lwinmm -lUser32" _content ${_content})
+        file(WRITE ${_pkg_comp} ${_content})
+    endforeach()
+endif()
+
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/share")
 vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/COPYING")

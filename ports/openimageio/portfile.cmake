@@ -36,6 +36,7 @@ file(REMOVE
 
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
     FEATURES
+        heif        USE_HEIF
         libraw      USE_LIBRAW
         opencolorio USE_OPENCOLORIO
         ffmpeg      USE_FFMPEG

@@ -1,0 +1,491 @@
+diff --git a/src/callback-client/callback-client.cpp b/src/callback-client/callback-client.cpp
+index e569b65..b31a098 100644
+--- a/src/callback-client/callback-client.cpp
++++ b/src/callback-client/callback-client.cpp
+@@ -330,7 +330,7 @@ void runR2C_FFT_PreAndPostprocessKernel(std::auto_ptr< clfftSetupData > setupDat
+ 	cl_program program = clCreateProgramWithSource( context, 1, &source, NULL, &status );
+ 	OPENCL_V_THROW( status, "clCreateProgramWithSource failed." );
+ 
+-	status = clBuildProgram( program, 1, &device_id, "", NULL, NULL);
++	status = clBuildProgram( program, 1, &device_id, CL_OPTIONS, NULL, NULL);
+ 	OPENCL_V_THROW( status, "clBuildProgram failed" );
+ 
+ #if defined( _DEBUG )
+diff --git a/src/library/action.h b/src/library/action.h
+index aecbe58..4bbab9a 100644
+--- a/src/library/action.h
++++ b/src/library/action.h
+@@ -51,6 +51,7 @@ public:
+     FFTStockhamAction(clfftPlanHandle plHandle, FFTPlan * plan, cl_command_queue queue, clfftStatus & err);
+ 
+     clfftGenerators getGenerator() { return Stockham; }
++    virtual ~FFTStockhamAction() = default;
+ };
+ 
+ 
+@@ -178,11 +179,8 @@ private:
+     bool buildBackwardKernel();
+ 
+ public:
+-
+-    virtual const Signature * getSignatureData()
+-    {
+-        return &this->signature;
+-    }
++    virtual ~FFTGeneratedStockhamAction() = default;
++    virtual const Signature *getSignatureData() { return &this->signature; }
+ };
+ 
+ 
+diff --git a/src/library/enqueue.cpp b/src/library/enqueue.cpp
+index f5ee01b..1f89ef0 100644
+--- a/src/library/enqueue.cpp
++++ b/src/library/enqueue.cpp
+@@ -755,7 +755,7 @@ clfftStatus FFTAction::compileKernels( const cl_command_queue commQueueFFT, cons
+             __debugbreak();
+ #endif
+ #else
+-            status = clBuildProgram( program, 1, &q_device, "", NULL, NULL);
++            status = clBuildProgram( program, 1, &q_device, CL_OPTIONS, NULL, NULL);
+ #endif
+             if( status != CL_SUCCESS )
+             {
+diff --git a/src/library/fft_binary_lookup.cpp b/src/library/fft_binary_lookup.cpp
+index ff386e2..f5c8b6e 100644
+--- a/src/library/fft_binary_lookup.cpp
++++ b/src/library/fft_binary_lookup.cpp
+@@ -560,7 +560,8 @@ cl_int FFTBinaryLookup::buildFromSource(const char * source)
+     this->m_program = FFTBinaryLookup::buildProgramFromSource(source,
+                                                            this->m_context,
+                                                            this->m_device,
+-                                                           err);
++                                                           err,
++                                                           CL_OPTIONS);
+ 
+     if (err != CL_SUCCESS)
+     {
+@@ -581,7 +582,8 @@ cl_int FFTBinaryLookup::buildFromLoadedBinary(const void * data,
+                                                            len,
+                                                            this->m_context,
+                                                            this->m_device,
+-                                                           err);
++                                                           err,
++                                                           CL_OPTIONS);
+ 
+     return err;
+ }
+diff --git a/src/library/generator.copy.cpp b/src/library/generator.copy.cpp
+index b55f599..a80bc77 100644
+--- a/src/library/generator.copy.cpp
++++ b/src/library/generator.copy.cpp
+@@ -258,12 +258,12 @@ namespace CopyGenerator
+ 				// input
+ 				if(inIlvd)
+ 				{
+-					str += "__global "; str += r2Type; str += " *lwbIn;\n\t";
++					str += "__global const "; str += r2Type; str += " *lwbIn;\n\t";
+ 				}
+ 				else
+ 				{
+-					str += "__global "; str += rType; str += " *lwbInRe;\n\t";
+-					str += "__global "; str += rType; str += " *lwbInIm;\n\t";
++					str += "__global const "; str += rType; str += " *lwbInRe;\n\t";
++					str += "__global const "; str += rType; str += " *lwbInIm;\n\t";
+ 				}
+ 			}
+ 
+diff --git a/src/library/generator.stockham.cpp b/src/library/generator.stockham.cpp
+index 6368b08..034ad68 100644
+--- a/src/library/generator.stockham.cpp
++++ b/src/library/generator.stockham.cpp
+@@ -2107,20 +2107,20 @@ namespace StockhamGenerator
+ 				{
+ 					if(inInterleaved)
+ 					{
+-										passStr += "__global "; passStr += regB2Type; passStr += " *"; passStr += bufferInRe;  passStr += ", ";
+-						if(!rcSimple) {	passStr += "__global "; passStr += regB2Type; passStr += " *"; passStr += bufferInRe2; passStr += ", "; }
++										passStr += "__global const "; passStr += regB2Type; passStr += " *"; passStr += bufferInRe;  passStr += ", ";
++						if(!rcSimple) {	passStr += "__global const "; passStr += regB2Type; passStr += " *"; passStr += bufferInRe2; passStr += ", "; }
+ 					}
+ 					else if(inReal)
+ 					{
+-										passStr += "__global "; passStr += regB1Type; passStr += " *"; passStr += bufferInRe;  passStr += ", ";
+-						if(!rcSimple) {	passStr += "__global "; passStr += regB1Type; passStr += " *"; passStr += bufferInRe2; passStr += ", "; }
++										passStr += "__global const "; passStr += regB1Type; passStr += " *"; passStr += bufferInRe;  passStr += ", ";
++						if(!rcSimple) {	passStr += "__global const "; passStr += regB1Type; passStr += " *"; passStr += bufferInRe2; passStr += ", "; }
+ 					}
+ 					else
+ 					{
+-										passStr += "__global "; passStr += regB1Type; passStr += " *"; passStr += bufferInRe;  passStr += ", ";
+-						if(!rcSimple) {	passStr += "__global "; passStr += regB1Type; passStr += " *"; passStr += bufferInRe2; passStr += ", "; }
+-										passStr += "__global "; passStr += regB1Type; passStr += " *"; passStr += bufferInIm;  passStr += ", ";
+-						if(!rcSimple) {	passStr += "__global "; passStr += regB1Type; passStr += " *"; passStr += bufferInIm2; passStr += ", "; }
++										passStr += "__global const "; passStr += regB1Type; passStr += " *"; passStr += bufferInRe;  passStr += ", ";
++						if(!rcSimple) {	passStr += "__global const "; passStr += regB1Type; passStr += " *"; passStr += bufferInRe2; passStr += ", "; }
++										passStr += "__global const "; passStr += regB1Type; passStr += " *"; passStr += bufferInIm;  passStr += ", ";
++						if(!rcSimple) {	passStr += "__global const "; passStr += regB1Type; passStr += " *"; passStr += bufferInIm2; passStr += ", "; }
+ 					}
+ 				}
+ 				else
+@@ -2161,24 +2161,24 @@ namespace StockhamGenerator
+ 				{
+ 					if(inInterleaved)
+ 					{
+-						passStr += "__global "; passStr += regB2Type; passStr += " *"; passStr += bufferInRe;  passStr += ", ";
++						passStr += "__global const "; passStr += regB2Type; passStr += " *"; passStr += bufferInRe;  passStr += ", ";
+ 					}
+ 					else
+ 					{
+-						passStr += "__global "; passStr += regB1Type; passStr += " *"; passStr += bufferInRe;  passStr += ", ";
+-						passStr += "__global "; passStr += regB1Type; passStr += " *"; passStr += bufferInIm;  passStr += ", ";
++						passStr += "__global const "; passStr += regB1Type; passStr += " *"; passStr += bufferInRe;  passStr += ", ";
++						passStr += "__global const "; passStr += regB1Type; passStr += " *"; passStr += bufferInIm;  passStr += ", ";
+ 					}
+ 				}
+ 				else
+ 				{
+ 					if(inInterleaved)
+ 					{
+-						passStr += "__local "; passStr += regB2Type; passStr += " *"; passStr += bufferInRe;  passStr += ", ";
++						passStr += "__local const "; passStr += regB2Type; passStr += " *"; passStr += bufferInRe;  passStr += ", ";
+ 					}
+ 					else
+ 					{
+-						passStr += "__local "; passStr += regB1Type; passStr += " *"; passStr += bufferInRe; passStr += ", ";
+-						passStr += "__local "; passStr += regB1Type; passStr += " *"; passStr += bufferInIm; passStr += ", ";
++						passStr += "__local const "; passStr += regB1Type; passStr += " *"; passStr += bufferInRe; passStr += ", ";
++						passStr += "__local const "; passStr += regB1Type; passStr += " *"; passStr += bufferInIm; passStr += ", ";
+ 					}
+ 				}
+ 
+@@ -3483,19 +3483,7 @@ namespace StockhamGenerator
+ 				else	str += "fft_back";
+ 				str += "(";
+ 
+-        // TODO : address this kludge
+-        size_t SizeParam_ret = 0;
+-        clGetDeviceInfo(Dev_ID, CL_DEVICE_VENDOR, 0, NULL, &SizeParam_ret);
+-        char* nameVendor = new char[SizeParam_ret];
+-        clGetDeviceInfo(Dev_ID, CL_DEVICE_VENDOR, SizeParam_ret, nameVendor, NULL);
+-
+-        //nv compiler doesn't support __constant kernel argument
+-        if (strncmp(nameVendor, "NVIDIA",6)!=0)
+-          str += "__constant cb_t *cb __attribute__((max_constant_size(32))), ";
+-        else
+-          str += "__global cb_t *cb, ";
+-
+-        delete [] nameVendor;
++        str += "__global cb_t *cb, ";
+ 
+ 		//If plan has pre/post callback
+ 		callbackstr.clear();
+@@ -3579,11 +3567,11 @@ namespace StockhamGenerator
+ 					{
+ 						if(inInterleaved)
+ 						{
+-							str += "__global "; str += r2Type; str += " * restrict gbIn, ";
++							str += "__global const "; str += r2Type; str += " * restrict gbIn, ";
+ 						}
+ 						else if(inReal)
+ 						{
+-							str += "__global "; str += rType; str += " * restrict gbIn, ";
++							str += "__global const "; str += rType; str += " * restrict gbIn, ";
+ 						}
+ 						else
+ 						{
+@@ -3690,22 +3678,22 @@ namespace StockhamGenerator
+ 					{ 
+ 						if(inInterleaved)
+ 						{
+-							if(!rcSimple)	{	str += "__global "; str += r2Type; str += " *lwbIn2;\n\t"; }
+-												str += "__global "; str += r2Type; str += " *lwbIn;\n\t";  
++							if(!rcSimple)	{	str += "__global const "; str += r2Type; str += " *lwbIn2;\n\t"; }
++												str += "__global const "; str += r2Type; str += " *lwbIn;\n\t";
+ 						}
+ 						else if(inReal)
+ 						{
+-							if(!rcSimple)	{	str += "__global "; str += rType; str += " *lwbIn2;\n\t"; }
+-												str += "__global "; str += rType; str += " *lwbIn;\n\t";
++							if(!rcSimple)	{	str += "__global const "; str += rType; str += " *lwbIn2;\n\t"; }
++												str += "__global const "; str += rType; str += " *lwbIn;\n\t";
+ 
+ 						}
+ 						else
+ 						{
+-							if(!rcSimple)	{	str += "__global "; str += rType; str += " *lwbInRe2;\n\t"; }
+-							if(!rcSimple)	{	str += "__global "; str += rType; str += " *lwbInIm2;\n\t"; }
++							if(!rcSimple)	{	str += "__global const "; str += rType; str += " *lwbInRe2;\n\t"; }
++							if(!rcSimple)	{	str += "__global const "; str += rType; str += " *lwbInIm2;\n\t"; }
+ 							  
+-												str += "__global "; str += rType; str += " *lwbInRe;\n\t"; 
+-												str += "__global "; str += rType; str += " *lwbInIm;\n\t"; 
++												str += "__global const "; str += rType; str += " *lwbInRe;\n\t"; 
++												str += "__global const "; str += rType; str += " *lwbInIm;\n\t"; 
+ 							
+ 						}
+ 					}
+@@ -3769,12 +3757,12 @@ namespace StockhamGenerator
+ 						{
+ 							if(inInterleaved)
+ 							{
+-								str += "__global "; str += r2Type; str += " *lwbIn;\n\t";
++								str += "__global const "; str += r2Type; str += " *lwbIn;\n\t";
+ 							}
+ 							else
+ 							{
+-								str += "__global "; str += rType; str += " *lwbInRe;\n\t";
+-								str += "__global "; str += rType; str += " *lwbInIm;\n\t";
++								str += "__global const "; str += rType; str += " *lwbInRe;\n\t";
++								str += "__global const "; str += rType; str += " *lwbInIm;\n\t";
+ 							}
+ 						}
+ 
+diff --git a/src/library/plan.h b/src/library/plan.h
+index 8368e5f..296ec59 100644
+--- a/src/library/plan.h
++++ b/src/library/plan.h
+@@ -364,6 +364,9 @@ private:
+ 
+     virtual bool buildForwardKernel() = 0;
+     virtual bool buildBackwardKernel() = 0;
++
++public:
++    virtual ~FFTAction() = default;
+ };
+ 
+ 
+diff --git a/src/library/private.h b/src/library/private.h
+index 48f2fa5..6824ec9 100644
+--- a/src/library/private.h
++++ b/src/library/private.h
+@@ -29,6 +29,12 @@
+ #include "../include/clFFT.h"
+ #include "../include/unicode.compatibility.h"
+ 
++#ifdef _DEBUG
++	#define CL_OPTIONS ""
++#else
++	#define CL_OPTIONS "-w"
++#endif
++
+ #if defined(_MSC_VER)
+ 	//	Microsoft Visual C++ compiler
+ 	//
+diff --git a/src/library/repo.cpp b/src/library/repo.cpp
+index 6778c99..64a1ea9 100644
+--- a/src/library/repo.cpp
++++ b/src/library/repo.cpp
+@@ -211,8 +211,8 @@ clfftStatus FFTRepo::setclProgram( const clfftGenerators gen, const FFTKernelSig
+ 	if( pos == mapFFTs.end( ) )
+ 	{
+ 		key.privatizeData(); // the key owns the data
+-		mapFFTs[ key ].clProgram = prog;
+-	}
++    mapFFTs[std::move(key)].clProgram = prog;
++  }
+ 	else {
+ 		cl_program p = pos->second.clProgram;
+ 		assert (NULL == p);
+diff --git a/src/library/repo.h b/src/library/repo.h
+index bb81f11..5fef582 100644
+--- a/src/library/repo.h
++++ b/src/library/repo.h
+@@ -42,8 +42,21 @@ class	FFTRepo
+         clfftGenerators gen;
+         const FFTKernelSignatureHeader * data;
+         cl_context context;
+-		cl_device_id device;
+-		bool dataIsPrivate;
++        cl_device_id device;
++        bool dataIsPrivate;
++
++        ~FFTRepoKey() {
++            if(data) deleteData();
++        }
++
++        FFTRepoKey(const FFTRepoKey &other) = default;
++
++        FFTRepoKey(FFTRepoKey && other)
++          : gen(other.gen), data(other.data), context(other.context),
++            device(other.device), dataIsPrivate(other.dataIsPrivate) {
++          other.data = nullptr;
++          other.dataIsPrivate = false;
++        }
+ 
+         FFTRepoKey(clfftGenerators gen_, const FFTKernelSignatureHeader * data_, cl_context context_, cl_device_id device_)
+             : gen(gen_), data(data_), context(context_), device(device_), dataIsPrivate(false)
+@@ -56,17 +69,17 @@ class	FFTRepo
+             char * tmp = new char[data->datasize];
+             ::memcpy(tmp, data, data->datasize);
+             this->data = (FFTKernelSignatureHeader*) tmp;
+-			dataIsPrivate = true;
++            dataIsPrivate = true;
+         }
+ 
+         void deleteData()
+         {
+             if ( dataIsPrivate && (this->data != NULL) )
+             {
+-				char *tmp = (char *)(this->data);
+-                delete[] tmp;
+-				this->data = 0;
+-            }            
++              char *tmp = (char *)(this->data);
++              delete[] tmp;
++              this->data = 0;
++            }
+         }
+ 
+         bool operator<(const FFTRepoKey & b) const
+@@ -76,22 +89,17 @@ class	FFTRepo
+             if (a.gen != b.gen)
+             {
+                 return a.gen < b.gen;
+-            }
+-            else if (a.data->datasize != b.data->datasize)
+-            {
+-                return a.data->datasize < b.data->datasize;
+-            }
+-            else if (a.context != b.context)
+-            {
+-                return a.context < b.context;
+-            }
+-			else if (a.device != b.device)
+-			{
+-				return a.device < b.device;
+-			}
+-            else
+-            {
+-                return ::memcmp(a.data, b.data, a.data->datasize) < 0;
++            } else if ((a.data && b.data) &&
++                       a.data->datasize != b.data->datasize) {
++              return a.data->datasize < b.data->datasize;
++            } else if (a.context != b.context) {
++              return a.context < b.context;
++            } else if (a.device != b.device) {
++              return a.device < b.device;
++            } else if(a.data && b.data){
++              return ::memcmp(a.data, b.data, a.data->datasize) < 0;
++            } else {
++              return false;
+             }
+         }
+     };
+@@ -133,6 +141,11 @@ class	FFTRepo
+ 		,	kernel_fwd_lock(NULL)
+ 		,	kernel_back_lock(NULL)
+ 		{}
++
++    ~fftKernels() {
++      if(kernel_fwd_lock) delete kernel_fwd_lock;
++      if (kernel_back_lock) delete kernel_back_lock;
++    }
+ 	};
+ 
+ 	typedef std::map< cl_program, fftKernels > mapKernelType;
+@@ -170,6 +183,7 @@ class	FFTRepo
+ 		//	violation could occur.
+ 		//releaseResources( );
+ 
++#ifdef _DEBUG
+ 		//	We should at least print out a warning message to the user if we are in our destructor and we still have resources
+ 		//	bound.  This should give the user a clue to remember to call clfftTeardown( )
+ 		if( (!mapKernels.empty( )) || (!mapFFTs.empty( )) )
+@@ -177,6 +191,7 @@ class	FFTRepo
+ 			terr << _T( "Warning:  Program terminating, but clFFT resources not freed." ) << std::endl;
+ 			terr << _T( "Please consider explicitly calling clfftTeardown( )." ) << std::endl;
+ 		}
++#endif
+ 	};
+ 
+ public:
+diff --git a/src/tests/copyTestDependencies.cmake.in b/src/tests/copyTestDependencies.cmake.in
+index 7ee9b00..460afb6 100644
+--- a/src/tests/copyTestDependencies.cmake.in
++++ b/src/tests/copyTestDependencies.cmake.in
+@@ -23,9 +23,9 @@ get_filename_component( testDir "${fixedTestLocation}" PATH )
+ 
+ set( installPath "" )
+ if( WIN32 )
+-    set( installPath "${CMAKE_INSTALL_PREFIX}/bin@SUFFIX_BIN@" )
++    set( installPath "${CMAKE_INSTALL_PREFIX}/bin@CLFFT_SUFFIX_BIN@" )
+ else( )
+-    set( installPath "${CMAKE_INSTALL_PREFIX}/lib@SUFFIX_LIB@" )
++    set( installPath "${CMAKE_INSTALL_PREFIX}/lib@CLFFT_SUFFIX_LIB@" )
+ endif( )
+ 
+ # Only search for dependencies that have ROOT defined
+diff --git a/src/tests/test_constants.h b/src/tests/test_constants.h
+index b882ead..3d68916 100644
+--- a/src/tests/test_constants.h
++++ b/src/tests/test_constants.h
+@@ -24,7 +24,7 @@
+ #include <stdexcept>
+ 
+ //Pre-callback function strings
+-#define PRE_MULVAL float2 mulval_pre(__global void* in, uint offset, __global void* userdata)\n \
++#define PRE_MULVAL float2 mulval_pre(__global const void* in, uint offset, __global void* userdata)\n \
+ 				{ \n \
+ 				float scalar = *((__global float*)userdata + offset); \n \
+ 				float2 ret = *((__global float2*)in + offset) * scalar; \n \
+@@ -36,7 +36,7 @@
+ 						float scalar1;  \
+ 						float scalar2;  \
+ 						} USER_DATA; \n \
+-					float2 mulval_pre(__global void* in, uint offset, __global void* userdata)\n \
++					float2 mulval_pre(__global const void* in, uint offset, __global void* userdata)\n \
+ 					{ \n \
+ 					__global USER_DATA *data = ((__global USER_DATA *)userdata + offset); \n \
+ 					float scalar = data->scalar1 * data->scalar2; \n \
+@@ -44,14 +44,14 @@
+ 					return ret; \n \
+ 					}
+ 
+-#define PRE_MULVAL_DP double2 mulval_pre(__global void* in, uint offset, __global void* userdata)\n \
++#define PRE_MULVAL_DP double2 mulval_pre(__global const void* in, uint offset, __global void* userdata)\n \
+ 				{ \n \
+ 				double scalar = *((__global double*)userdata + offset); \n \
+ 				double2 ret = *((__global double2*)in + offset) * scalar; \n \
+ 				return ret; \n \
+ 				}
+ 
+-#define PRE_MULVAL_PLANAR float2 mulval_pre(__global void* inRe, __global void* inIm, uint offset, __global void* userdata)\n \
++#define PRE_MULVAL_PLANAR float2 mulval_pre(__global const void* inRe, __global const void* inIm, uint offset, __global void* userdata)\n \
+ 				{ \n \
+ 				float scalar = *((__global float*)userdata + offset); \n \
+ 				float2 ret; \n \
+@@ -60,7 +60,7 @@
+ 				return ret; \n \
+ 				}
+ 
+-#define PRE_MULVAL_PLANAR_DP double2 mulval_pre(__global void* inRe, __global void* inIm, uint offset, __global void* userdata)\n \
++#define PRE_MULVAL_PLANAR_DP double2 mulval_pre(__global const void* inRe, __global const void* inIm, uint offset, __global void* userdata)\n \
+ 				{ \n \
+ 				double scalar = *((__global double*)userdata + offset); \n \
+ 				double2 ret; \n \
+@@ -69,14 +69,14 @@
+ 				return ret; \n \
+ 				}
+ 
+-#define PRE_MULVAL_REAL float mulval_pre(__global void* in, uint offset, __global void* userdata)\n \
++#define PRE_MULVAL_REAL float mulval_pre(__global const void* in, uint offset, __global void* userdata)\n \
+ 				{ \n \
+ 				float scalar = *((__global float*)userdata + offset); \n \
+ 				float ret = *((__global float*)in + offset) * scalar; \n \
+ 				return ret; \n \
+ 				}
+ 
+-#define PRE_MULVAL_REAL_DP double mulval_pre(__global void* in, uint offset, __global void* userdata)\n \
++#define PRE_MULVAL_REAL_DP double mulval_pre(__global const void* in, uint offset, __global void* userdata)\n \
+ 				{ \n \
+ 				double scalar = *((__global double*)userdata + offset); \n \
+ 				double ret = *((__global double*)in + offset) * scalar; \n \
+@@ -84,7 +84,7 @@
+ 				}
+ 
+ //Precallback test for LDS - works when 1 WI works on one input element
+-#define PRE_MULVAL_LDS float2 mulval_pre(__global void* in, uint offset, __global void* userdata, __local void* localmem)\n \
++#define PRE_MULVAL_LDS float2 mulval_pre(__global const void* in, uint offset, __global void* userdata, __local void* localmem)\n \
+ 				{ \n \
+ 				uint lid = get_local_id(0); \n \
+ 				__local float* lds = (__local float*)localmem + lid; \n \

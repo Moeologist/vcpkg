@@ -17,6 +17,8 @@ vcpkg_from_github(
     fix-dependency-clfft.patch
     fix-miss-header-file.patch
     "${CUDA_PATCHES}"
+    fix-dependency-clblast.patch
+    fix-install.patch
 )
 
 # arrayfire cpu thread lib needed as a submodule for the CPU backend
@@ -49,11 +51,12 @@ set(AF_DEFAULT_VCPKG_CMAKE_FLAGS
   -DBUILD_TESTING=OFF
   -DAF_BUILD_DOCS=OFF
   -DAF_BUILD_EXAMPLES=OFF
-  -DUSE_CPU_MKL=ON
-  -DUSE_OPENCL_MKL=ON
+  -DUSE_CPU_MKL=OFF
+  -DUSE_OPENCL_MKL=OFF
   -DAF_CPU_THREAD_PATH=${CPU_THREADS_PATH} # for building the arrayfire cpu threads lib
   -DAF_FORGE_PATH=${FORGE_PATH} # forge headers for building the graphics lib
   -DAF_BUILD_FORGE=OFF
+  -DAF_OPENCL_BLAS_LIBRARY=CLBlast
 )
 
 if("cpu" IN_LIST FEATURES)

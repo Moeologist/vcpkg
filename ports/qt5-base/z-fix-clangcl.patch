@@ -1,0 +1,15 @@
+diff --git a/mkspecs/win32-clang-msvc/qmake.conf b/mkspecs/win32-clang-msvc/qmake.conf
+index be7cdaa3..d6d9430b 100644
+--- a/mkspecs/win32-clang-msvc/qmake.conf
++++ b/mkspecs/win32-clang-msvc/qmake.conf
+@@ -37,8 +37,8 @@ QMAKE_CFLAGS           += -Wno-microsoft-enum-value
+ 
+ QMAKE_CXXFLAGS         += -Wno-microsoft-enum-value
+ 
+-QMAKE_LINK              = lld-link
+-QMAKE_LIB               = llvm-lib /NOLOGO
++QMAKE_LINK              = link /NOLOGO
++QMAKE_LIB               = lib /NOLOGO
+ 
+ QMAKE_CXXFLAGS_CXX11    = -std:c++11
+ QMAKE_CXXFLAGS_CXX14    = -std:c++14

@@ -28,7 +28,7 @@ endif()
 vcpkg_configure_meson(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
-        -Dfft=${FFT_LIB}           # 'auto', 'builtin', 'kissfft', 'fftw', sleef', 'vdsp', 'ipp' 'FFT library to use. The default (auto) will use vDSP if available, the builtin implementation otherwise.')
+        -Dfft=auto                 # 'auto', 'builtin', 'kissfft', 'fftw', sleef', 'vdsp', 'ipp' 'FFT library to use. The default (auto) will use vDSP if available, the builtin implementation otherwise.')
         -Dresampler=libsamplerate  # 'auto', 'builtin', 'libsamplerate', 'speex', 'libspeexdsp', 'ipp' 'Resampler library to use. The default (auto) simply uses the builtin implementation.'
         -Dipp_path=                # 'Path to Intel IPP libraries, if selected for any of the other options.'
         -Dextra_include_dirs=      # 'Additional local header directories to search for dependencies.'
@@ -46,6 +46,23 @@ vcpkg_install_meson()
 
 vcpkg_fixup_pkgconfig()
 vcpkg_copy_pdbs()
+
+if (VCPKG_LIBRARY_LINKAGE STREQUAL "static")
+    file(GLOB _pkg_components "${CURRENT_PACKAGES_DIR}/lib/pkgconfig/*.pc")
+    foreach(_pkg_comp ${_pkg_components})
+    file(READ ${_pkg_comp} _content)
+    string(APPEND _content "\nRequires.private:  sleef")
+    string(APPEND _content "\nLibs.private: -lsleef -lsleefdft")
+    file(WRITE ${_pkg_comp} ${_content})
+    endforeach()
+    file(GLOB _pkg_components "${CURRENT_PACKAGES_DIR}/debug/lib/pkgconfig/*.pc")
+    foreach(_pkg_comp ${_pkg_components})
+    file(READ ${_pkg_comp} _content)
+    string(APPEND _content "\nRequires.private:  sleef")
+    string(APPEND _content "\nLibs.private: -lsleef -lsleefdft")
+    file(WRITE ${_pkg_comp} ${_content})
+    endforeach()
+endif()
 
 if(EXISTS "${CURRENT_PACKAGES_DIR}/bin/rubberband-program${VCPKG_TARGET_EXECUTABLE_SUFFIX}")
   # Rubberband uses a different executable name when compiled with msvc
